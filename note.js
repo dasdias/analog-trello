@@ -36,37 +36,54 @@ const Note = {
         noteElement.addEventListener('drop', Note.drop );
     },
 
+    create() {
+        // создаем новую заметку
+        const noteElement = document.createElement('div');
+        noteElement.classList.add('note');
+        noteElement.setAttribute('draggable', 'true');
+        noteElement.setAttribute('data-note-id', Note.idCounter);
+
+        Note.idCounter++;
+
+        Note.process(noteElement);
+        return noteElement;
+    },
+
     // dragStart
     dragstart(event) {
-        Note.draggede = this;
+        Note.dragged = this;
         this.classList.add('dragged');
-
+        
         event.stopPropagation();
         
     },
 
     // dragEnd
     dragend(event) {
-        Note.draggede = null;
+        event.stopPropagation();
+
+        Note.dragged = null;
         this.classList.remove('dragged');
 
         document.querySelectorAll('.note')
                 .forEach( x => x.classList.remove('under'));
-
     },
 
     // dragEnter
     dragenter(event) {
-        this.classList.add('under');
-        if (this === Note.draggede) {
+        event.stopPropagation();
+
+        if (!Note.dragged ||this === Note.dragged) {
             return;
         }
+        this.classList.add('under');
     },
 
     // dragOver
     dragover(event) {
+        event.stopPropagation();
         event.preventDefault();
-        if (this === Note.draggede) {
+        if (!Note.dragged ||this === Note.dragged) {
             return;
         }
 
@@ -75,36 +92,38 @@ const Note = {
 
     // dragLeave
     dragleave(event) {
-        this.classList.remove('under');
+        event.stopPropagation();
 
-        if (this === Note.draggede) {
+        
+        if (!Note.dragged ||this === Note.dragged) {
             return;
         }
+        this.classList.remove('under');
     },
 
     // drop
     drop(event) {
         event.stopPropagation();
 
-        if (this === Note.draggede) {
+        if (!Note.dragged ||this === Note.dragged) {
             return;
         }
         // console.log('drop');
         // если совпадают родители перетаскиваемого элемента
-        if (this.parentElement === Note.draggede.parentElement) {
+        if (this.parentElement === Note.dragged.parentElement) {
             const note = Array.from(this.parentElement.querySelectorAll('.note'));
             const indexA = note.indexOf(this);
-            const indexB = note.indexOf(Note.draggede);
+            const indexB = note.indexOf(Note.dragged);
 
             if (indexA < indexB) {
-                this.parentElement.insertBefore(Note.draggede, this);
+                this.parentElement.insertBefore(Note.dragged, this);
             } else {
-                this.parentElement.insertBefore(Note.draggede, this.nextElementSibling);
+                this.parentElement.insertBefore(Note.dragged, this.nextElementSibling);
             }
         } else {
             // заметку которую перетаскиваем, 
             // вставляем перед элементом над которым находится карточка
-            this.parentElement.insertBefore(Note.draggede, this)
+            this.parentElement.insertBefore(Note.dragged, this)
         }
     }
 };

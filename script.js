@@ -21,7 +21,7 @@ document.querySelector('[data-action-addColumn]')
         // контейнер для колонок и вставляем в него новую колонку с заметками
         document.querySelector('.columns').append(columnElement);
 
-        // чтобы в новой колонке можно было создавать новые заметки, запускаем функцию columnProcess
+        // чтобы в новой колонке можно было создавать новые заметки, запускаем функцию Column.process
         Column.process(columnElement);
 
     });

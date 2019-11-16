@@ -22,6 +22,7 @@ const Column = {
             // переводим в режим редактирования, созданную новую заметку
             noteElement.setAttribute('contenteditable', 'true');
             noteElement.focus();
+
         });
 
         // редактируем заголовок по двойному клику
@@ -30,11 +31,12 @@ const Column = {
             headerElement.setAttribute('contenteditable', 'true');
             headerElement.focus();
         });
-
+        
         // отменяем редактирование заголовка при потере фокуса
         headerElement.addEventListener('blur', function (event) {
             headerElement.removeAttribute('contenteditable');
-
+            Application.save();
+            
         });
 
         columnElement.addEventListener('dragstart', Column.dragstart);
@@ -45,6 +47,33 @@ const Column = {
         // columnElement.addEventListener('dragleave', Column.dragleave);
 
         columnElement.addEventListener('drop', Column.drop);
+    },
+
+    create(id = null, title = 'В плане') {
+
+        // создаем новую колонку
+         const columnElement = document.createElement('div');
+         columnElement.classList.add('column');
+         columnElement.setAttribute('draggable', 'true');
+
+         if (id) {
+             columnElement.setAttribute('data-column-id', id);
+         } else {
+             columnElement.setAttribute('data-column-id', Column.idCounter);
+             Column.idCounter++;
+         }
+
+         columnElement.innerHTML =
+             `<p class="column-header" contenteditable="true">${title}</p>
+        <div data-notes></div>
+        <p class="column-footer">
+            <span data-action-addNote class="action">+ Добавить карточку</span>
+        </p>`;
+
+        // чтобы в новой колонке можно было создавать новые заметки, запускаем функцию Column.process
+         Column.process(columnElement);
+
+         return columnElement;
     },
     dragstart(event) {
         Column.dragged = this;
@@ -72,6 +101,7 @@ const Column = {
         document
             .querySelectorAll('.column')
             .forEach(columnElement => columnElement.classList.remove('under'));
+        Application.save();
 
     },
 
